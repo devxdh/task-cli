@@ -11,7 +11,7 @@ const dataFormat = (name) => {
     return obj;
 }
 
-const getTask = async () => {
+const GetTask = async () => {
     try {
         const content = fs.readFileSync(filepath, 'utf-8');
         if (!content.trim()) return [];
@@ -45,7 +45,41 @@ const UpdateTask = async (taskName) => {
             return
         }
         const taskToUpdate = dataArray.find(task => task.name === taskName)
+
+        if (taskToUpdate) {
+            if (!taskToUpdate.status == true) {
+                taskToUpdate.status == true
+                fs.writeFileSync(filepath, JSON.stringify(dataArray, null, 2))
+                console.log(`Task Successfully Updated`)
+            }
+        } else {
+            console.log(`No Task Found: ${taskName}`);
+            return
+        }
     } catch (err) {
+        console.error(`UpdateTask Error: ${err}`);
+    }
+}
+
+const DeleteTask = async (taskName) => {
+    try {
+        const dataArray = await getTask();
+        if (dataArray.length === 0) {
+            console.log("There is no data in db.json file");
+            return
+        }
+
+        const updatedArray = dataArray.filter(task => task.name !== taskName)
+        if (updatedArray.length === dataArray.length) {
+            console.log(`No Task found to delete with name ${taskName}`);
+            return
+        }
+        fs.writeFileSync(filepath, JSON.stringify(updatedArray, null, 2))
+        console.log(`Task ${taskName} Deleted Successfully`);
+    } catch (err) {
+        console.error(`DeleteTask Error: ${err}`);
 
     }
 }
+
+module.exports = { GetTask, AddTask, UpdateTask, DeleteTask }
