@@ -1,26 +1,19 @@
 package helper
 
 import (
-	"log"
-	"os"
-
-	"github.com/joho/godotenv"
+	"fmt"
 )
 
-func Env() map[string]string {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file: %v", err)
+func HandleErr(err error, msg ...string) bool {
+	if err == nil {
+		return false
 	}
 
-	DB_ENV := "DATABASE_URL"
-
-	DB_URL := os.Getenv(DB_ENV)
-	if len(DB_URL) == 0 {
-		log.Fatal("Error loading %s from .env: %v", DB_ENV, err)
+	finalErrMsg := "An error occurred"
+	if len(msg) > 0 && msg[0] != "" {
+		finalErrMsg = msg[0]
 	}
 
-	return map[string]string{
-		DB_ENV: DB_URL,
-	}
+	fmt.Printf("%s: %v\n", finalErrMsg, err)
+	return true
 }

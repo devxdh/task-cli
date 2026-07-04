@@ -17,7 +17,7 @@ func Init() {
 	env := helper.Env()
 	connStr := env["DATABASE_URL"]
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
 	var err error
@@ -33,7 +33,12 @@ func Init() {
 		log.Fatalf("Could not ping database: %v", err)
 	}
 
-	fmt.Println("Successfully connected to PostgreSQL!")
+	err = DDL_SEED()
+	if err != nil {
+		log.Fatal("DDL failed to seed DB: %v", err)
+	}
+
+	fmt.Println("DB connected and seeded Successfully!")
 }
 
 func DDL_SEED() error {
