@@ -58,6 +58,7 @@ func EntryPoint(svc *services.Services) {
 		}
 
 		switch command {
+
 		case "add":
 			err := svc.Add(title, description)
 			if helper.HandleErr(err, "Failed to save your new task") {
@@ -65,6 +66,26 @@ func EntryPoint(svc *services.Services) {
 			}
 
 			fmt.Println("Task added successfully!\n")
+
+		case "list":
+			list, err := svc.List()
+			if helper.HandleErr(err, "Failed to List your tasks") {
+				continue
+			}
+
+			if len(list) == 0 {
+				fmt.Println("No tasks found! Your todo list is empty.")
+				continue
+			}
+
+			fmt.Println("\n=== Your Tasks ===")
+			for _, task := range list {
+				timeStr := task.CreatedAt.Format("2006-01-02 15:04")
+				fmt.Printf("[%d] %s (Status: %s)\n", task.Id, task.Title, task.Status)
+				fmt.Printf("    Description: %s\n", task.Description)
+				fmt.Printf("    Created At:  %s\n", timeStr)
+				fmt.Println("--------------------------------")
+			}
 		}
 	}
 }
