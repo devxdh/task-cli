@@ -3,7 +3,7 @@ BEGIN;
 -- Create Task Type safely
 DO $$
 BEGIN
-  IF NOT EXISTS (SElECT 1 FROM pg_type WHERE typename = 'task_status') THEN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'task_status') THEN
     CREATE TYPE task_status AS ENUM ('due', 'completed');
   END IF;
 END

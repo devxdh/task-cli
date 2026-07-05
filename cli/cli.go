@@ -7,14 +7,19 @@ import (
 	"strings"
 
 	"github.com/devxdh/task-cli/helper"
+	"github.com/devxdh/task-cli/services"
 )
 
-func EntryPoint() {
+const (
+	allowedCommands = "Allowed commands: add | list | update | delete | exit"
+)
+
+func EntryPoint(svc *services.Services) {
 	reader := bufio.NewReader(os.Stdin)
 
 	//Initial Message
 	fmt.Println("=== Welcome to Your Task CLI ===")
-	fmt.Println("Available commands: add | list | update | delete | exit")
+	fmt.Println(allowedCommands)
 	fmt.Println("Format: add [title] -d [description]  OR  add [title]")
 	fmt.Println("--------------------------------")
 
@@ -40,8 +45,26 @@ func EntryPoint() {
 			continue
 		}
 
-		switch parts[0] {
+		command, title, description := parseInput(parts)
+
+		if command == "" {
+			fmt.Println(allowedCommands)
+			continue
+		}
+
+		if !helper.IsValidTitle(title) {
+			fmt.Println("Title cannot be empty")
+			continue
+		}
+
+		switch command {
 		case "add":
+			err := svc.Add(title, description)
+			if helper.HandleErr(err, "Failed to save your new task") {
+				continue // Jumps immediately back to the beginning of the for loop ($ prompt)
+			}
+
+			fmt.Println("Task added successfully!\n")
 		}
 	}
 }

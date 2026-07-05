@@ -1,14 +1,15 @@
 package main
 
 import (
-	"fmt"
-
+	"github.com/devxdh/task-cli/cli"
 	"github.com/devxdh/task-cli/database"
+	"github.com/devxdh/task-cli/services"
 )
 
 func main() {
-	fmt.Println("Hello, World!")
-	database.Init()
+	pool := database.Init()
+	svc := services.NewService(pool)
+	defer pool.Close()
 
-	defer database.DB.Close()
+	cli.EntryPoint(svc)
 }
