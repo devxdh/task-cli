@@ -13,12 +13,12 @@ import (
 type TaskStatus string
 
 type Task struct {
-	Id          int        `json:"id"`
-	Title       string     `json:"title"`
-	Description string     `json:"description"`
-	Status      TaskStatus `json:"status"`
-	CreatedAt   time.Time  `json:"created_at"`
-	UpdatedAt   time.Time  `json:"updated_at"`
+	Id          int        `json:"id"          db:"id"`
+	Title       string     `json:"title"       db:"title"`
+	Description string     `json:"description" db:"description"`
+	Status      TaskStatus `json:"status"      db:"status"`
+	CreatedAt   time.Time  `json:"created_at"   db:"created_at"`
+	UpdatedAt   time.Time  `json:"updated_at"   db:"updated_at"`
 }
 
 const (
@@ -59,7 +59,8 @@ func (s *Services) List() ([]Task, error) {
 	defer cancel()
 
 	queryListTasks := `
-		SELECT id, title, description, created_at, updated_at FROM tasks;
+		SELECT id, title, status, description, created_at, updated_at
+		FROM tasks;
 	`
 
 	rows, err := s.DB.Query(ctx, queryListTasks)
@@ -74,4 +75,47 @@ func (s *Services) List() ([]Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (s *Services) Delete(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	queryDeleteTask := `
+		DELETE from tasks
+		WHERE id = $1;
+	`
+
+	result, err := s.DB.Exec(ctx, queryDeleteTask, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete task: %w", err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("task with ID %s not found", id)
+	}
+
+	return nil
+}
+
+func (s *Services) Complete(id string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	queryDoneTask := `
+		UPDATE tasks
+		SET status='completed'
+		WHERE id=$1
+	`
+
+	result, err := s.DB.Exec(ctx, queryDoneTask, id)
+	if err != nil {
+		return fmt.Errorf("failed to complete task: %w", err)
+	}
+
+	if result.RowsAffected() == 0 {
+		return fmt.Errorf("task with ID %s not found", id)
+	}
+
+	return nil
 }

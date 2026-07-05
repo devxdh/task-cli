@@ -12,7 +12,7 @@ func parseInput(parts []string) (command, title, description string) {
 	}
 
 	command = parts[0]
-	allowed := []string{"add", "update", "delete", "list", "exit"}
+	allowed := []string{"add", "complete", "delete", "list", "exit"}
 
 	if !slices.Contains(allowed, command) {
 		fmt.Printf("%s is not allowed!\n", command)

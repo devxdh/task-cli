@@ -11,7 +11,7 @@ $$;
 
 -- Creates Task Table
 CREATE TABLE IF NOT EXISTS tasks (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   title VARCHAR(100) NOT NULL,
   description TEXT,
   status task_status NOT NULL DEFAULT 'due',

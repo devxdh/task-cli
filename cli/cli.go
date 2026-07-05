@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	allowedCommands = "Allowed commands: add | list | update | delete | exit"
+	allowedCommands = "Allowed commands: add | list | complete | delete | exit"
 )
 
 func EntryPoint(svc *services.Services) {
@@ -20,10 +20,10 @@ func EntryPoint(svc *services.Services) {
 	//Initial Message
 	fmt.Println("=== Welcome to Your Task CLI ===")
 	fmt.Println(allowedCommands)
-	fmt.Println("Format: add [title] -d [description]  OR  add [title]")
+	fmt.Println("Format: add [title] -d [description] OR add [title] OR delete [id]")
 	fmt.Println("--------------------------------")
 
-	// Infinite loop for interactive use of CLI
+	// Infinite loop for interactive CLI
 	for {
 		fmt.Print("\n$")
 
@@ -52,9 +52,11 @@ func EntryPoint(svc *services.Services) {
 			continue
 		}
 
-		if !helper.IsValidTitle(title) {
-			fmt.Println("Title cannot be empty")
-			continue
+		if command != "list" && command != "exit" {
+			if !helper.IsValidTitle(title) {
+				fmt.Println("Title cannot be empty")
+				continue
+			}
 		}
 
 		switch command {
@@ -86,6 +88,42 @@ func EntryPoint(svc *services.Services) {
 				fmt.Printf("    Created At:  %s\n", timeStr)
 				fmt.Println("--------------------------------")
 			}
+
+		case "delete":
+			if title == "" {
+				fmt.Println("Please provide a task ID to delete. Format: delete [id]")
+				continue
+			}
+
+			err := svc.Delete(title)
+			if err != nil {
+				fmt.Printf("failed to delete task: %w\n", err)
+				continue
+			}
+
+			fmt.Println("Task deleted successfully!")
+
+		case "complete":
+			if title == "" {
+				fmt.Println("Please provide a task ID to complete. Format: complete [id]")
+				continue
+			}
+
+			err := svc.Complete(title)
+			if err != nil {
+				fmt.Printf("failed to complete task: %w\n", err)
+				continue
+			}
+
+			fmt.Println("Task completed successfully!")
+
+		case "exit":
+			fmt.Println("Goodbye!")
+			return
+
+		default:
+			fmt.Println(allowedCommands)
+			continue
 		}
 	}
 }
