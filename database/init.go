@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"log"
 	"os"
@@ -41,19 +42,13 @@ func Init() {
 	fmt.Println("DB connected and seeded Successfully!")
 }
 
+//go:embed sql/001-init.sql
+var initSchema string
+
 func DDL_SEED() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	queryCreateTable := `
-		CREATE TABLE IF NOT EXISTS tasks (
-			id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-			title VARCHAR(100) NOT NULL,
-			description TEXT,
-			created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-			updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-		)
-	`
-	_, err := DB.Exec(ctx, queryCreateTable)
+	_, err := DB.Exec(ctx, initSchema)
 	return err
 }
