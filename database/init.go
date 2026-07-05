@@ -49,6 +49,14 @@ func DDL_SEED() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
+	log.Println("Injecting database schema from sql/001-init.sql...")
+
 	_, err := DB.Exec(ctx, initSchema)
-	return err
+	if err != nil {
+		return err
+	}
+
+	log.Println("Database schema injected successfully!")
+
+	return nil
 }
